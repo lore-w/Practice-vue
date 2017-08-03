@@ -1,0 +1,17 @@
+<TemplateEntityBean>
+  <templateId>4577</templateId>
+  <templateName>报名首页</templateName>
+  <templateCode>apply</templateCode>
+  <templateDesc>报名首页</templateDesc>
+  <createTime>2017-07-27 10:49:27.0</createTime>
+  <lastupTime>2017-07-27 10:49:27.0</lastupTime>
+  <templateFilepath>o2o/wap/apply/index.ftl</templateFilepath>
+  <categoryId>1369</categoryId>
+  <templateStatus>1</templateStatus>
+  <templateType>2</templateType>
+  <catalogId>3</catalogId>
+  <syncType>1,2,3</syncType>
+  <categoryCode>o2o</categoryCode>
+  <templateFullList/>
+  <modelList/>
+</TemplateEntityBean>

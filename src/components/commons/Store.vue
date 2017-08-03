@@ -11,7 +11,7 @@
         </div>
         <div class="widget-bottom" v-show="active">
             <div id="store-chooser-wrapper">
-                <div class="store-chooser">
+                <div class="store-chooser animated" :class="{slideInUp: active}">
                     <!--标题-->
                     <h1 class="chooser-header">
                         <div class="nav-title">选择门店</div>
@@ -47,7 +47,18 @@
 
 <script>
 
-    let _ = require('lodash');
+    import Vue from 'vue';
+    import vueResource from 'vue-resource';
+    import CONF from '../../commons/conf';
+    import listProvince from '../../commons/conf';
+
+    import _ from 'lodash';
+
+    // Promise 垫片
+    require('core-js/fn/promise');
+
+    // 省市关系映射表（省市数据从一个接口取得）
+    let mapProvCity = {};
 
     export default {
         name: 'StoreWidget',
@@ -66,7 +77,7 @@
             return {
                 selectedField: 'provinceCode',
                 // 城市组件是否显示
-                active: this.isActive === '1',
+                active: this.isActive,
                 // 省、市、店数据
                 fields: [
                     {
@@ -94,19 +105,13 @@
             }
         },
         mounted () {
-
-            let _this = this;
-
-            _this.init();
-
+            this.init();
         },
         methods: {
 
-            /**
-             *初始化
-             */
             init() {
-                let _this = this;
+                let _this = this,
+                    activityCode = _this.$route.params.actCode;
 
                 // 先检查是否传入默认选中的选项
                 if (typeof _this.initSelect !== 'undefined' && _this.initSelect.length > 0) {
@@ -118,40 +123,38 @@
 
                         if (!_.has(value, valueField) || !_.has(value, labelField)) {
 
-                            console.info('初始化StoreWidget参数错误');
+                            console.warn('初始化StoreWidget默认选中参数错误或参数不全');
                         } else {
                             _this.fields[index].selectedItem = value;
                         }
-                    })
-                }
-
-                // 查询省数据
-                _this.queryProvData().then(data => {
-
-                    // 更新省数据列表
-                    _this.fields[0].items = data;
-                    _.isEmpty(_this.fields[0].selectedItem) && (_this.fields[0].selectedItem = data[0]);
-
-                    return data[0];
-
-                    // 查询市数据
-                }).then(data => {
-                    return _this.queryCityData().then(cityData => {
-
-                        // 更新市数据列表
-                        _this.fields[1].items = cityData;
-                        _.isEmpty(_this.fields[1].selectedItem) && (_this.fields[1].selectedItem = cityData[0]);
-
-                        return cityData[0];
                     });
 
-                    // 查询store数据
+                    _this.tellParent();
+                }
+
+                // 查询省市数据
+                _this.queryProvinceCityData(activityCode).then(data => {
+
+                    mapProvCity = data.mapProvCity;
+
+                    // 更新省数据列表
+                    _this.fields[0].items = data.listProv;
+                    _.isEmpty(_this.fields[0].selectedItem) && (_this.fields[0].selectedItem = data.listProv[0]);
+
+                    // 更新市数据列表
+                    _this.fields[1].items = mapProvCity[_this.fields[0].selectedItem.provinceCode];
+                    _.isEmpty(_this.fields[1].selectedItem) && (_this.fields[1].selectedItem = _this.fields[1].items[0]);
+
+                    return _this.fields[1].selectedItem;
+
                 }).then(data => {
-                    _this.queryStoreData().then(storeData => {
+                    _this.queryStoreData(activityCode, data.cityId, '', '').then(storeData => {
 
                         // 更新store数据列表
                         _this.fields[2].items = storeData;
                         _.isEmpty(_this.fields[2].selectedItem) && (_this.fields[2].selectedItem = storeData[0]);
+
+                        _this.tellParent();
                     });
                 });
             },
@@ -166,47 +169,37 @@
             drillDown(index, item) {
 
                 let _this = this,
-                    drillDownIdx = index + 1;
+                    drillDownIdx = index + 1,
+                    activityCode = _this.$route.params.actCode;
 
                 _this.fields[index].selectedItem = item;
 
                 switch (drillDownIdx) {
                     case 1:
 
-                        // 查询城市数据
-                        _this.queryCityData().then((data) => {
+                        // 更新市数据列表
+                        _this.fields[1].items = mapProvCity[_this.fields[0].selectedItem.provinceCode];
+                        _.isEmpty(_this.fields[1].selectedItem) && (_this.fields[1].selectedItem = _this.fields[1].items[0]);
+                        _this.switchNav(drillDownIdx);
 
-                            _this.fields[drillDownIdx].items = data;
-                            _this.fields[drillDownIdx].selectedItem = data[0];
-                            _this.switchNav(drillDownIdx);
-
-                            return data;
-                        }).then(data => {
-
-                            _this.queryStoreData().then(storeData => {
-
-                                // 更新store数据列表
-                                _this.fields[drillDownIdx + 1].items = storeData;
-                                _this.fields[drillDownIdx + 1].selectedItem = storeData[0];
-                            });
+                        // 查询店数据列表
+                        _this.queryStoreData(activityCode, _this.fields[1].selectedItem.cityId, '', '').then(storeData => {
+                            _this.fields[2].items = storeData;
+                            _.isEmpty(_this.fields[2].selectedItem) && (_this.fields[2].selectedItem = storeData[0]);
                         });
+
                         break;
                     case 2:
-                        _this.queryStoreData().then((data) => {
 
-                            _this.fields[drillDownIdx].items = data;
+                        // 查询店数据列表
+                        _this.queryStoreData(activityCode, _this.fields[1].selectedItem.cityId, '', '').then(storeData => {
+                            _this.fields[drillDownIdx].items = storeData;
                             _this.switchNav(drillDownIdx);
                         });
                         break;
                     default:
+                        _this.tellParent();
                         _this.cancelHandler();
-
-                        _this.$emit('listenChild', {
-                            widgetType: _this.widgetType,
-                            widgetName: _this.widgetName,
-                            widgetId: _this.widgetId,
-                            value: _this.fields[2].selectedItem
-                        });
                 }
             },
 
@@ -243,74 +236,96 @@
             },
 
             /**
-             * [查询与活动关联的省的数据]
-             * @param: {String}
+             * 把自组建数据传到父组件
              */
-            queryProvData() {
+            tellParent() {
 
-                let reqSuccess = true;
-                return new Promise((resolve, reject) => {
-                    if (reqSuccess) {
-                        setTimeout(() => {
-                            resolve([
-                                {provinceCode: '1', provinceName: '江苏'},
-                                {provinceCode: '2', provinceName: '浙江'},
-                                {provinceCode: '3', provinceName: '浙江'},
-                                {provinceCode: '4', provinceName: '浙江'},
-                                {provinceCode: '5', provinceName: '浙江'},
-                                {provinceCode: '6', provinceName: '浙江'},
-                                {provinceCode: '7', provinceName: '浙江'},
-                                {provinceCode: '8', provinceName: '浙江'},
-                                {provinceCode: '9', provinceName: '浙江'},
-                                {provinceCode: '0', provinceName: '浙江'}
-                            ]);
-                        }, 10);
-                    } else {
-                        reject(new Error(data));
-                    }
-                })
+                let _this = this;
+
+                _this.$emit('listenChild', {
+                    widgetType: _this.widgetType,
+                    widgetName: _this.widgetName,
+                    widgetId: _this.widgetId,
+                    value: [
+                        _this.fields[0].selectedItem,
+                        _this.fields[1].selectedItem,
+                        _this.fields[2].selectedItem
+                    ]
+                });
             },
 
             /**
-             * [查询市的数据]
-             * @param: {String}
+             * [查询与活动关联的省市的数据]
+             * @param: {String} activityCode 活动Code
+             * @return Promise
              */
-            queryCityData() {
+            queryProvinceCityData(activityCode) {
 
-                let reqSuccess = true;
+                let url = CONF.API.queryProvinceCityList;
+
+                url = url
+                    .replace('{{activityCode}}', activityCode)
+                    .replace('{{callback}}', 'queryProvinceCityCallback');
+
                 return new Promise((resolve, reject) => {
-                    if (reqSuccess) {
-                        setTimeout(() => {
-                            resolve([
-                                {cityCode: '1', cityName: '南京'},
-                                {cityCdoe: '2', cityName: '上海'},
-                            ]);
-                        }, 500);
-                    } else {
+                    Vue.http.jsonp(url, {
+
+                        jsonpCallback: 'queryProvinceCityCallback'
+                    }).then(data => {
+                        if (data.body.code === '0') {
+
+                            let d = data.body.data,
+                                listProv = [],
+                                mapProvCity = {};
+
+                            _.forEach(d, (item, index, arr) => {
+
+                                listProv.push({
+                                    provinceCode: 'id_' + index,
+                                    provinceName: item.provinceName
+                                });
+
+                                mapProvCity['id_' + index] = item.signUpCityInfos;
+                            });
+                            resolve({mapProvCity, listProv});
+                        } else {
+                            reject(new Error(`${url}接口错误`));
+                        }
+                    }, data => {
                         reject(new Error(data));
-                    }
-                })
+                    });
+                });
             },
 
             /**
              * [查询门店列表的数据]
              * @param: {String}
              */
-            queryStoreData() {
+            queryStoreData(activityCode, cityId, lng, lat) {
 
-                let reqSuccess = true;
+                let url = CONF.API.queryStoreList;
+
+                url = url
+                    .replace('{{activityCode}}', activityCode)
+                    .replace('{{cityId}}', cityId)
+                    .replace('{{lng}}', lng)
+                    .replace('{{lat}}', lat)
+                    .replace('{{callback}}', 'queryStoreDataCallback');
+
                 return new Promise((resolve, reject) => {
-                    if (reqSuccess) {
-                        setTimeout(() => {
-                            resolve([
-                                {storeCode: '1', storeName: '新街口'},
-                                {storeCode: '2', storeName: '江东门'},
-                            ]);
-                        }, 500);
-                    } else {
+                    Vue.http.jsonp(url, {
+
+                        jsonpCallback: 'queryStoreDataCallback'
+                    }).then(data => {
+                        if (data.body.code === '0') {
+                            resolve(data.body.data);
+                        } else {
+                            reject(new Error(`${url}接口错误`));
+                        }
+                    }, data => {
                         reject(new Error(data));
-                    }
-                })
+                    });
+                });
             }
         }
     }
@@ -341,8 +356,10 @@
             height: 70px;
             line-height: 70px;
             color: #353d44;
+            margin-top: 8px;
             padding: .5rem 0;
             width: 100%;
+            display: block;
             font-size: .6rem;
         }
 
@@ -404,6 +421,7 @@
         border: 0;
         height: 1.76rem;
         line-height: 1.76rem;
+        border-bottom: 1px solid #dcdcdc;
 
         .nav-title {
             width: 60%;
@@ -432,14 +450,15 @@
         }
     }
     .tab-nav {
-        display: -webkit-box;
+        display: block;
         width: 100%;
         height: 1.76rem;
         line-height: 1.76rem;
         z-index: 1;
 
         li {
-            -webkit-box-flex: 1;
+            width: 33.333333333%;
+            float: left;
             background-color: #fff;
             color: #353d44;
             font-size: .52rem;

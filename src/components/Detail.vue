@@ -11,8 +11,8 @@
         <!--活动信息（时间、地点等）-->
         <div class="act-wrapper">
             <ul>
-                <li><span>时间</span>{{startTime}} - {{endTime}}</li>
-                <li><span>地点</span>{{activityLocation}}</li>
+                <li><span>时间：</span>{{startTime}} - {{endTime}}</li>
+                <li><span>地点：</span>{{activityLocation}}</li>
             </ul>
         </div>
         <!--补充（是否支持V购预约）-->
@@ -21,7 +21,7 @@
             <p>{{vVal}}</p>
         </div>
         <!--报名按钮-->
-        <span class="new-zhaoji-btn">{{btnVal}}</span>
+        <span class="new-zhaoji-btn" :class="{'new-zhao-end': disabled}" @click="enroll">{{btnVal}}</span>
     </div>
 </template>
 
@@ -30,36 +30,123 @@
     // 导入组件
     import banner from '@/components/commons/banner';
 
+    import Server from '../services/enroll';
+    import {Util} from '../commons/util';
+
+    let isneedLogin;
+
     export default {
         name: 'Detail',
         data () {
             return {
-                'activityPics': [
-                    "http://uimgpre.cnsuning.com/uimg/moss/activeImg/149663512568453334.png",
-                    "http://uimgpre.cnsuning.com/uimg/moss/activeImg/149663512568453334.png"
-                ], // 轮播图图片列表
+                'activityPics': [], // 轮播图图片列表
                 'curIndex': '0',  //默认第一个小圆点高亮
-                'activityName': '11',
-                'activityIntro': '通讯促销活动关联V购通讯促销活动关联V购通讯促销活动关联V购通讯促销活动关联V购',
-                'startTime': 'startTime',
-                'endTime': 'endTime',
-                'activityLocation': 'activityLocation',
+                'activityName': '',
+                'activityIntro': '',
+                'startTime': '',
+                'endTime': '',
+                'activityLocation': '',
                 'vVal': '免费定制家电套餐，尊享一对一全程导购服务',
-                'btnVal': '立即报名' //可选值 立即报名 | 报名已结束 | 报名未开始 | 报名人数已满
+                'btnVal': '立即报名', //可选值 立即报名 | 报名已结束 | 报名未开始 | 报名人数已满
+                'disabled': false
             }
         },
         components: {banner},
         // 生命周期钩子
         mounted () {
 
+
+            let urlParams = this.$route.params;
+
+            Server.queryActDetailsInfo(urlParams.actCode).then(data => {
+
+                if (typeof data.activityPics === 'undefined' || data.activityPics.length === 0) {
+
+                    console.warn('数据错误，至少需要一张封面图');
+
+                    //return;
+                }
+
+                if ((new Date(data.signupStartime.replace(/-/g, "/"))).getTime() > (new Date()).getTime()) {
+
+                    this.btnVal = '报名未开始';
+                    this.disabled = true;
+                }
+                if ((new Date(data.sigupEndtime.replace(/-/g, "/"))).getTime() < (new Date()).getTime()) {
+
+                    this.btnVal = '报名已结束';
+                    this.disabled = true;
+                }
+                if (data.limitNum !== '0' && data.regNumber >= data.limitNum) {
+
+                    this.btnVal = '报名人数已满';
+                    this.disabled = true;
+                }
+
+                let sTime = Util.getStringTime(data.activityStarttime),
+                    eTime = Util.getStringTime(data.activityEndtime);
+
+                isneedLogin = data.isneedLogin;
+
+                this.activityPics = data.activityPics;
+                this.activityName = data.activityName;
+                this.activityIntro = data.activityIntro;
+                this.startTime = sTime.M + '\u6708' + sTime.D + '\u65e5 ' + sTime.h + ':' + sTime.m;
+                this.endTime = eTime.M + '\u6708' + eTime.D + '\u65e5 ' + eTime.h + ':' + eTime.m;
+                this.activityLocation = data.activityLocation;
+                this.vVal = data.newTypeDesc;
+
+
+            });
+        },
+        methods: {
+
+            enroll() {
+
+                let urlParams = this.$route.params;
+
+                if (this.disabled) {
+
+                    return;
+                }
+
+                if (isneedLogin * 1 === 0) {
+
+                    this.$router.push({
+                        name: 'enroll',
+                        params: {
+                            actCode: urlParams.actCode,
+                            storeCode: urlParams.storeCode,
+                            storeType: urlParams.storeType,
+                            sign: '1'
+                        }
+                    });
+                } else {
+
+                    Util.auth(() => {
+
+                        this.$router.push({
+                            name: 'enroll',
+                            params: {
+                                actCode: urlParams.actCode,
+                                storeCode: urlParams.storeCode,
+                                storeType: urlParams.storeType,
+                                sign: '1'
+                            }
+                        });
+                    })
+                }
+            }
         }
     }
 </script>
 
 <style scoped>
+
     #detail {
         width: 100%;
         height: 100%;
+        background: #fff;
     }
 
     .title {

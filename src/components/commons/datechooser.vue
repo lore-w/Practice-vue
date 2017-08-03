@@ -4,14 +4,14 @@
             <div class="widget-left">{{widgetName}}</div>
             <div class="widget-right">
                 <input type="text" readonly :placeholder="placeholder" @click="clickInput" :value="selectTime()"/>
-                <span class="db-arrow" :class="{active: active === '1'}"></span>
+                <span class="db-arrow" :class="{active: active}"></span>
             </div>
         </div>
-        <div class="widget-bottom" v-show="active">
+        <div class="widget-bottom animated" v-show="active">
             <div class="datechooser"
                  @touchmove.prevent="moveHandler"
-                 @touchend.prevent="endHandler">
-                <div transition="chooser" class="chooser-transition">
+                 @touchend.prevent="endHandler" >
+                <div transition="chooser" class="chooser-transition animated" :class="{slideInUp: active}">
                     <h1>
                         <a @touchstart="cancelHandler">取消</a>
                         <b></b>
@@ -79,6 +79,8 @@
 </template>
 <script>
 
+    import _ from 'lodash';
+
     // li的高度从上到下分别是 1、1.15、1.3、1.75、1.3、1.15、1
     // 因此基线位置是1 + 1.15 + 1.3 = 3.45
     const
@@ -108,7 +110,7 @@
                 commitable: true, // 是否可确定
                 targetName: null, // 当前拖动的区块（年 | 月 | 天）
                 touching: false, // 是否可拖动
-                active: this.isActive === '1',
+                active: this.display,
                 selectedDate:  this.defaultDate // 默认选中的时间
             };
         },
@@ -122,8 +124,9 @@
             widgetName: {
                 type: String
             },
-            isActive: {
-                type: String
+            display: {
+                type: Boolean,
+                default: false
             },
             placeholder: {
                 type: String
@@ -178,8 +181,6 @@
         methods: {
 
             selectTime() {
-
-                let selectedDate = this.selectedDate;
 
                 return this.selectedDate.getFullYear() + '-' + (this.selectedDate.getMonth() + 1) + '-' + this.selectedDate.getDate();
             },
@@ -647,13 +648,23 @@
                 //this.complete(new Date(this.selectedDate.getTime()));
                 _this.active = false;
 
+                _this.tellParent();
+            },
+
+            /**
+             * 把自组建数据传到父组件
+             */
+            tellParent() {
+
+                let _this = this;
+
                 _this.$emit('listenChild', {
                     widgetType: _this.widgetType,
                     widgetName: _this.widgetName,
                     widgetId: _this.widgetId,
-                    value: _this.selectedDate.getTime()
+                    value: _this.selectedDate
                 });
-            }
+            },
         },
         watch: {
 
@@ -696,6 +707,8 @@
             _this.updateYear(selectedYear);
             _this.updateMonth(selectedMonth);
             _this.updateDate(selectedDate);
+
+            _this.tellParent();
         }
 
         //Vue 2.x filters can only be used inside mustache interpolations and v-bind expressions (the latter supported since 2.1.0), because filters are primarily designed for text transformation purposes. For more complex data transforms in other directives, you should use Computed properties instead
@@ -765,6 +778,7 @@
         right: 0;
         bottom: 0;
         left: 0;
+        z-index: 1;
         background: hsla(0, 0%, 0%, .5);
     }
     .chooser-transition{

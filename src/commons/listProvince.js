@@ -1,0 +1,280 @@
+export default [{
+    mdmId: "100",
+    name: "江苏",
+    commerceId: "100",
+    defaultCityMdmId: "1000173",
+    countryId: "",
+    pinyin: "jiangsu",
+    state: 0,
+    sequence: 5
+},{
+    mdmId: "10",
+    name: "北京",
+    commerceId: "10",
+    defaultCityMdmId: "1000000",
+    countryId: "",
+    pinyin: "beijing",
+    state: 0,
+    sequence: 0
+}, {
+    mdmId: "20",
+    name: "上海",
+    commerceId: "20",
+    defaultCityMdmId: "1000267",
+    countryId: "",
+    pinyin: "shanghai",
+    state: 0,
+    sequence: 1
+}, {
+    mdmId: "30",
+    name: "天津",
+    commerceId: "30",
+    defaultCityMdmId: "1000289",
+    countryId: "",
+    pinyin: "tianjin",
+    state: 0,
+    sequence: 2
+}, {
+    mdmId: "320",
+    name: "重庆",
+    commerceId: "320",
+    defaultCityMdmId: "1000333",
+    countryId: "",
+    pinyin: "zhongqing",
+    state: 0,
+    sequence: 3
+}, {
+    mdmId: "190",
+    name: "广东",
+    commerceId: "190",
+    defaultCityMdmId: "1000041",
+    countryId: "",
+    pinyin: "guangdong",
+    state: 0,
+    sequence: 6
+}, {
+    mdmId: "120",
+    name: "山东",
+    commerceId: "120",
+    defaultCityMdmId: "1000230",
+    countryId: "",
+    pinyin: "shandong",
+    state: 0,
+    sequence: 7
+}, {
+    mdmId: "130",
+    name: "浙江",
+    commerceId: "130",
+    defaultCityMdmId: "1000323",
+    countryId: "",
+    pinyin: "zhejiang",
+    state: 0,
+    sequence: 8
+}, {
+    mdmId: "230",
+    name: "四川",
+    commerceId: "230",
+    defaultCityMdmId: "1000268",
+    countryId: "",
+    pinyin: "sichuan",
+    state: 0,
+    sequence: 9
+}, {
+    mdmId: "60",
+    name: "河北",
+    commerceId: "60",
+    defaultCityMdmId: "1000095",
+    countryId: "",
+    pinyin: "hebei",
+    state: 0,
+    sequence: 10
+}, {
+    mdmId: "170",
+    name: "湖北",
+    commerceId: "170",
+    defaultCityMdmId: "1000135",
+    countryId: "",
+    pinyin: "hubei",
+    state: 0,
+    sequence: 11
+}, {
+    mdmId: "150",
+    name: "福建",
+    commerceId: "150",
+    defaultCityMdmId: "1000018",
+    countryId: "",
+    pinyin: "fujian",
+    state: 0,
+    sequence: 12
+}, {
+    mdmId: "70",
+    name: "辽宁",
+    commerceId: "70",
+    defaultCityMdmId: "1000197",
+    countryId: "",
+    pinyin: "liaoning",
+    state: 0,
+    sequence: 13
+}, {
+    mdmId: "180",
+    name: "河南",
+    commerceId: "180",
+    defaultCityMdmId: "1000106",
+    countryId: "",
+    pinyin: "henan",
+    state: 0,
+    sequence: 14
+}, {
+    mdmId: "110",
+    name: "安徽",
+    commerceId: "110",
+    defaultCityMdmId: "1000002",
+    countryId: "",
+    pinyin: "anhui",
+    state: 0,
+    sequence: 15
+}, {
+    mdmId: "160",
+    name: "湖南",
+    commerceId: "160",
+    defaultCityMdmId: "1000151",
+    countryId: "",
+    pinyin: "hunan",
+    state: 0,
+    sequence: 16
+}, {
+    mdmId: "250",
+    name: "陕西",
+    commerceId: "250",
+    defaultCityMdmId: "1000257",
+    countryId: "",
+    pinyin: "shanxi",
+    state: 0,
+    sequence: 17
+}, {
+    mdmId: "210",
+    name: "广西",
+    commerceId: "210",
+    defaultCityMdmId: "1000063",
+    countryId: "",
+    pinyin: "guangxi",
+    state: 0,
+    sequence: 18
+}, {
+    mdmId: "140",
+    name: "江西",
+    commerceId: "140",
+    defaultCityMdmId: "1000188",
+    countryId: "",
+    pinyin: "jiangxi",
+    state: 0,
+    sequence: 19
+}, {
+    mdmId: "50",
+    name: "山西",
+    commerceId: "50",
+    defaultCityMdmId: "1000248",
+    countryId: "",
+    pinyin: "shanxi",
+    state: 0,
+    sequence: 20
+}, {
+    mdmId: "90",
+    name: "黑龙江",
+    commerceId: "90",
+    defaultCityMdmId: "1000122",
+    countryId: "",
+    pinyin: "heilongjiang",
+    state: 0,
+    sequence: 21
+}, {
+    mdmId: "80",
+    name: "吉林",
+    commerceId: "80",
+    defaultCityMdmId: "1000164",
+    countryId: "",
+    pinyin: "jilin",
+    state: 0,
+    sequence: 22
+}, {
+    mdmId: "220",
+    name: "贵州",
+    commerceId: "220",
+    defaultCityMdmId: "1000076",
+    countryId: "",
+    pinyin: "guizhou",
+    state: 0,
+    sequence: 23
+}, {
+    mdmId: "240",
+    name: "云南",
+    commerceId: "240",
+    defaultCityMdmId: "1000309",
+    countryId: "",
+    pinyin: "yunnan",
+    state: 0,
+    sequence: 24
+}, {
+    mdmId: "290",
+    name: "新疆",
+    commerceId: "290",
+    defaultCityMdmId: "1000297",
+    countryId: "",
+    pinyin: "xinjiang",
+    state: 0,
+    sequence: 25
+}, {
+    mdmId: "260",
+    name: "甘肃",
+    commerceId: "260",
+    defaultCityMdmId: "1000028",
+    countryId: "",
+    pinyin: "gansu",
+    state: 0,
+    sequence: 26
+}, {
+    mdmId: "40",
+    name: "内蒙古",
+    commerceId: "40",
+    defaultCityMdmId: "1000212",
+    countryId: "",
+    pinyin: "neimenggu",
+    state: 0,
+    sequence: 27
+}, {
+    mdmId: "200",
+    name: "海南",
+    commerceId: "200",
+    defaultCityMdmId: "1000085",
+    countryId: "",
+    pinyin: "hainan",
+    state: 0,
+    sequence: 28
+}, {
+    mdmId: "270",
+    name: "宁夏",
+    commerceId: "270",
+    defaultCityMdmId: "1000334",
+    countryId: "",
+    pinyin: "ningxia",
+    state: 0,
+    sequence: 29
+}, {
+    mdmId: "280",
+    name: "青海",
+    commerceId: "280",
+    defaultCityMdmId: "1000222",
+    countryId: "",
+    pinyin: "qinghai",
+    state: 0,
+    sequence: 30
+}, {
+    mdmId: "300",
+    name: "西藏",
+    commerceId: "300",
+    defaultCityMdmId: "1000347",
+    countryId: "",
+    pinyin: "xizang",
+    state: 0,
+    sequence: 31
+}];

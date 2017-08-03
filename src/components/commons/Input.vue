@@ -21,17 +21,18 @@
     export default {
         name: 'InputWidget',
         props: [
-            'widgetType',
             'widgetId',
+            'widgetType',
             'widgetName', //控件名称
             'maxlength',
             'type', //类型（可选值 tel | text）
-            'placeholder'
+            'placeholder',
+            'initVal'
         ],
-        data () {
+        data (){
 
             return {
-                inputVal: ''
+                inputVal: this.initVal
             }
         },
         mounted () {
@@ -39,10 +40,18 @@
         },
         methods: {
             listenBlur () {
+
+                this.tellParent();
+            },
+            receivedParentUpdate (val) {
+
+                this.inputVal = val;
+            },
+            tellParent() {
                 this.$emit('listenChild', {
+                    widgetId: this.widgetId,
                     widgetType: this.widgetType,
                     widgetName: this.widgetName,
-                    widgetId: this.widgetId,
                     value: this.inputVal
                 });
             }
@@ -64,6 +73,7 @@
         font-size: .6rem;
         padding-left: .5rem;
         float: left;
+        height: 100%;
     }
     .widget-right {
         overflow: hidden;

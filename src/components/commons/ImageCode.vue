@@ -2,7 +2,11 @@
     <div class="widget-top">
         <div class="widget-left">{{widgetName}}</div>
         <div class="widget-right">
-            <input id="code" :data-uuid="uuid" :maxlength="maxlength" :placeholder="placeholder" type="text">
+            <input id="code"
+                   :data-uuid="uuid"
+                   :maxlength="maxlength"
+                   v-model="inputVal" @input="listenBlur"
+                   placeholder="请输入验证码" type="text">
             <span>清空</span>
             <div><img :src="imageCode"></div>
         </div>
@@ -14,12 +18,30 @@
     export default {
         name: 'ImageCodeWidget',
         props: [
+            'widgetId',
+            'widgetType',
             'widgetName', //控件名称
             'maxlength',
-            'placeholder',
             'uuid', //图形验证码uuid
-            'imageCode' //图形验证码url
+            'imageCode', //图形验证码url
+            'initVal'
         ],
+        data () {
+
+            return {
+                inputVal: this.initVal
+            }
+        },
+        methods: {
+            listenBlur () {
+                this.$emit('listenChild', {
+                    widgetId: this.widgetId,
+                    widgetType: this.widgetType,
+                    widgetName: this.widgetName,
+                    value: this.inputVal
+                });
+            }
+        }
     }
 </script>
 

@@ -12,9 +12,9 @@
         </div>
         <div class="widget-bottom" v-show="active">
             <ul>
-                <li v-for="(opts, index) in options"
+                <li v-for="(opts, index) in optionsArr"
                     @click="selectOpt"
-                    :class="{multiple: selectType == 1, active: opts.isActive === '1'}">{{opts.value}}</li>
+                    :class="{multiple: selectType == 1, active: opts.isActive}">{{opts.value}}</li>
             </ul>
         </div>
     </div>
@@ -22,7 +22,7 @@
 
 <script>
 
-    let _ = require('lodash');
+    import _ from 'lodash';
 
     export default {
         name: 'SelectWidget',
@@ -34,12 +34,13 @@
             'options', // 待选项
             'isActive', // 是否展开下拉列表（0 折叠、1展开）
             'selectType', // 单选还是多选（0 单选、1多选）
-            'placeholder'
+            'placeholder',
+            'value'
         ],
         data() {
             return {
-                active: this.isActive === '1',
-                selectText: []
+                optionsArr: [],
+                active: this.isActive
             }
         },
         computed: {
@@ -47,15 +48,13 @@
 
                 let selectArr = [];
 
-                _.forEach(this.options, (value, index, arr) => {
+                _.forEach(this.optionsArr, item => {
 
-                    if (value.isActive === '1') {
+                    if (item.isActive) selectArr.push(item.value);
+                })
 
-                        selectArr.push(value.value);
-                    }
-                });
+                return selectArr.join(',');
 
-                return selectArr.join(' ');
             }
         },
         methods: {
@@ -64,28 +63,25 @@
             },
             selectOpt(e) {
 
-                let selectText = e.target.innerText,
-                    opts = this.options, // **opts是引用类型，修改会改变父作用域的值**
-                    _this = this;
+                let _this = this,
+                    selectText = e.target.innerText,
+                    opts = this.optionsArr; // **opts是引用类型，修改会改变父作用域的值**
 
                 let newOpts = _.forEach(opts, (value, index, arr) => {
-
-                    let isActive = arr[index].isActive === '1';
 
                     if (_this.selectType === '1') {
                         //多选
                         if (value.value === selectText) {
-                            arr[index].isActive = isActive ? '0' : '1';
+                            arr[index].isActive = !arr[index].isActive;
                         }
                     } else {
                         //单选
                         if (value.value === selectText) {
-                            arr[index].isActive = isActive ? '0' : '1';
+                            arr[index].isActive = !arr[index].isActive;
                         } else {
-                            arr[index].isActive = '0';
+                            arr[index].isActive = false;
                         }
                     }
-                    _this.selectText.push(selectText);
                 });
 
 
@@ -93,12 +89,27 @@
                     widgetType: this.widgetType,
                     widgetName: this.widgetName,
                     widgetId: this.widgetId,
-                    value: newOpts
+                    value: this.selectValue
                 });
             }
         },
         mounted() {
 
+            // 初始化数据
+            let _this = this,
+                optionsArr = [],
+                options = this.options.split(',');
+
+            _.forEach(options, (value, index, arr) => {
+
+                optionsArr.push({
+
+                    value: value,
+                    isActive: _.indexOf(_this.value, value) !== -1
+                });
+            })
+
+            _this.optionsArr = optionsArr;
         }
     }
 </script>
@@ -129,8 +140,11 @@
             line-height: 70px;
             color: #353d44;
             padding: .5rem 0;
-            width: 100%;
+            width: 500px;
             font-size: .6rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         >  span {

@@ -4,14 +4,14 @@
         <ul class="banner-slide">
             <li v-for="item in activityPics">
                 <a href="javascript:void(0)">
-                    <img :src="item" alt="">
+                    <img :data-src="item.picUrl" alt="">
                 </a>
             </li>
         </ul>
         <!--轮播图小圆点-->
         <div class="img-show-pagation">
             <ul class="index-slide-trigger nav-slide-trigger trigger">
-                <li v-bind:class="{cur: index === currentIndex}" v-for="(item, index) in activityPics"></li>
+                <li :class="{cur: index === currentIndex}" v-for="(item, index) in activityPics"></li>
             </ul>
         </div>
     </div>
@@ -30,9 +30,14 @@
         // 生命周期钩子
         mounted () {
 
+            setTimeout(() => {
+
+                $(".lazyimg").lazyload();
+            }, 800);
+
             let _this = this;
 
-            $.loadMod('//res.suning.cn/public/v5/mod/swipe/1.1.0/swipe.js').done(() => {
+            $.loadMod(MOD_URL.swipe).done(() => {
 
                 Swipe(document.getElementById("D_index_slide"), {
                     startSlide: 0,
